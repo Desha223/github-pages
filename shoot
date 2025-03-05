@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shooting Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Target {
+            constructor(x, y, radius) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = "red";
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+
+        let targets = [];
+        function spawnTarget() {
+            let x = Math.random() * canvas.width;
+            let y = Math.random() * canvas.height;
+            targets.push(new Target(x, y, 30));
+        }
+
+        function drawTargets() {
+            targets.forEach(target => target.draw());
+        }
+
+        canvas.addEventListener("click", (event) => {
+            let clickX = event.clientX;
+            let clickY = event.clientY;
+            targets = targets.filter(target => {
+                let distance = Math.sqrt((clickX - target.x) ** 2 + (clickY - target.y) ** 2);
+                return distance > target.radius;
+            });
+        });
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTargets();
+            requestAnimationFrame(gameLoop);
+        }
+
+        setInterval(spawnTarget, 1000);
+        gameLoop();
+    </script>
+</body>
+</html>
